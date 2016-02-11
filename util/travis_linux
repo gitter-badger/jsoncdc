@@ -1,9 +1,9 @@
 #!/bin/bash
 set -o errexit -o nounset -o pipefail
+VERSION=9.4
 
 sudo pip install pgxnclient
-sudo -E env PATH="$PATH" make install
-VERSION=9.4
+sudo -E env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" make install
 PG_DIR=/etc/postgresql/${VERSION}/main
 HBA_CONF=$PG_DIR/pg_hba.conf
 CONF=$PG_DIR/postgresql.conf
@@ -21,4 +21,3 @@ sudo pg_ctlcluster $VERSION main start
 
 
 make test
-

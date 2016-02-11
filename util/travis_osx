@@ -1,0 +1,27 @@
+#!/bin/bash
+set -o errexit -o nounset -o pipefail
+set -ex
+
+sudo pip install pgxnclient
+VERSION=9.5.0
+BREW_LOG=brew.log
+brew remove postgresql
+rm -rf /usr/local/var/postgres
+brew update > $BREW_LOG
+brew install postgresql >> $BREW_LOG
+brew cleanup postgresql >>$BREW_LOG
+make clean all install
+PG_LOG=var/db/server.log
+PG_DIR=var/db
+HBA_CONF=$PG_DIR/pg_hba.conf
+CONF=$PG_DIR/postgresql.conf
+rm -rf var/
+bash util/pg-embed init_store
+
+echo "local    replication     all trust" >> $HBA_CONF
+echo "host     replication      all ::1/128  trust" >> $HBA_CONF
+echo "max_wal_senders = 1" >> $CONF
+echo "wal_level=logical" >> $CONF
+echo "max_replication_slots=1" >> $CONF
+./util/pg-embed start && ./util/pg-embed create_db
+env PGHOST=`pwd`/var make test || head -n 10000 var/log; head -n 10000  /Users/travis/build/posix4e/jsoncdc/regression.diffs ;head -n 10000  /Users/travis/build/posix4e/jsoncdc/regression.out; kill -9 -1
