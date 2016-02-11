@@ -2,8 +2,7 @@ language: rust
 sudo: required
 os:
   - linux
-rust:
-  - beta
+  - osx
 addons:
   postgresql: "9.4"
   apt:
@@ -16,4 +15,4 @@ addons:
     - libclang-common-3.4-dev
     - clang-3.4
 
-script: util/travis
+script: util/travis_${TRAVIS_OS_NAME}
